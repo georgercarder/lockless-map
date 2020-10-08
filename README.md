@@ -11,7 +11,8 @@
 	go func() {
 		for i:=0; i < 1000; i++ {
 			lm.Put("cat", i)
-			time.Sleep(someInterval)
+			time.Sleep(someInterval) 
+			// simulating some period put
 		}
 	}()
 
@@ -19,11 +20,12 @@
 	go func() {
 		for i:=0; i < 1000; i++ {
 			lm.Put("cat", i)
-			time.Sleep(someOtherInterval)
+			time.Sleep(someOtherInterval) 
+			// simulating some periodic put
 		}
 	}()
 
-	time.Sleep(verySmallInterval) // so that Take wont give nil
+	time.Sleep(verySmallInterval) // simulating activity in the application
 
 	// taker
 	t, err := lm.Take("cat")
