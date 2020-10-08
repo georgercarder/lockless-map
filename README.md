@@ -16,7 +16,7 @@
 			value := i
 			lm.Put(key, value)
 			time.Sleep(someInterval) 
-			// simulating some period put
+			// simulating some periodic put
 		}
 	}()
 
