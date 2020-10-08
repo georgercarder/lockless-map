@@ -40,4 +40,4 @@
 	// do stuff with t
 ```
 
-### Please let me know in the comments if you encounter any issues or would like to contribute improvements.
+### Please let me know in git issues if you encounter any issues or would like to contribute improvements.
