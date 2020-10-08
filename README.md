@@ -32,7 +32,7 @@
 	if err != nil {
 		// err is only when t is nil	
 	}
-	fmt.Println("debug take", t, er)
+	// do stuff with t
 ```
 
 ### Please let me know in the comments if you encounter any issues or would like to contribute improvements.
