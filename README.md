@@ -28,7 +28,7 @@
 	// taker
 	t, err := lm.Take("cat")
 	if err != nil {
-	
+		// err is only when t is nil	
 	}
 	fmt.Println("debug take", t, er)
 ```
