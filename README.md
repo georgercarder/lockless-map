@@ -37,10 +37,7 @@
 	time.Sleep(verySmallInterval) // simulating activity in the application
 
 	// taker
-	t, err := lm.Take(key1, key2, key3, key4)
-	if err != nil {
-		// err is only when t is nil	
-	}
+	t := lm.Take(key1, key2, key3, key4)
 	// do stuff with t
 ```
 
