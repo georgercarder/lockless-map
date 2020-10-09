@@ -30,7 +30,7 @@ func NewLocklessMap() (lt *locklessMap) {
 }
 
 type kvPair struct {
-	K string
+	K interface{}
 	V interface{}
 }
 
@@ -40,7 +40,7 @@ func (lt *locklessMap) Take(key interface{}) (s interface{}) {
 	return
 }
 
-func (lt *locklessMap) Put(key string, s interface{}) {
+func (lt *locklessMap) Put(key interface{}, s interface{}) {
 	lt.CH <- &kvPair{K: key, V: s}
 	return
 }
