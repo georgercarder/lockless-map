@@ -8,7 +8,8 @@
 ```
 	lm := NewLocklessMap()
 
-	key1 := "cat" // key to be "contended" for
+	// keys and value to be "contended" for
+	key1 := "cat"
 	key2 := 123
 	key3 := uint64(456)
 	key4 := byte(0xF4)
