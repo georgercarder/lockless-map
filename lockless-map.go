@@ -1,9 +1,5 @@
 package lockless_map
 
-import (
-	"fmt"
-)
-
 type locklessMap struct {
 	CH     (chan *kvPair)
 	reqCH  (chan interface{}) // key
@@ -18,7 +14,7 @@ func NewLocklessMap() (lt *locklessMap) {
 	go func() {
 		latestMap := make(map[interface{}]interface{})
 		kv := new(kvPair)
-		var key interface{} 
+		var key interface{}
 		for {
 			select {
 			case kv = <-lt.CH:
@@ -38,17 +34,13 @@ type kvPair struct {
 	V interface{}
 }
 
-func (lt *locklessMap) Take(key interface{}) (s interface{}, err error) {
-	lt.reqCH <- key 
+func (lt *locklessMap) Take(key interface{}) (s interface{}) {
+	lt.reqCH <- key
 	s = <-lt.takeCH
-	if s == nil {
-		err = fmt.Errorf("*latest.take: Channel is empty.")
-	}
 	return
 }
 
 func (lt *locklessMap) Put(key string, s interface{}) {
-//	fmt.Println("debug put", key, s)
-	lt.CH <- &kvPair{K:key, V:s}
+	lt.CH <- &kvPair{K: key, V: s}
 	return
 }
