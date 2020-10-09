@@ -1,6 +1,6 @@
 ## Lockless Map
 
-### A simple threadsafe lockless map written in golang
+### A simple threadsafe lockless hashmap written in golang
 
 
 ### Usage
