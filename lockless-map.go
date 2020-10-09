@@ -1,14 +1,25 @@
 package lockless_map
 
+// TODO PUT AN ENFORCEMENT OF CHAIN OF KEYTYPES
+
+// TODO NEED RANGE OVER MAP
+
 type LocklessMap interface {
 	Put(keysNVal ...interface{})
 	Take(keys ...interface{}) interface{}
 }
 
 type locklessMap struct {
-	CH     (chan *kvPair)
-	reqCH  (chan interface{}) // key
-	takeCH (chan interface{}) // value
+	CH           (chan *kvPair)
+	reqCH        (chan interface{}) // key
+	takeCH       (chan interface{}) // value
+	dumpReqCH    (chan bool)
+	dumpPacketCH (chan *DumpPacket)
+}
+
+type DumpPacket struct {
+	Keys   []interface{}
+	Values []interface{}
 }
 
 func NewLocklessMap() (lt *locklessMap) {
@@ -16,6 +27,8 @@ func NewLocklessMap() (lt *locklessMap) {
 	lt.CH = make(chan *kvPair, 1)
 	lt.reqCH = make(chan interface{}, 1)
 	lt.takeCH = make(chan interface{}, 1)
+	lt.dumpReqCH = make(chan bool, 1)
+	lt.dumpPacketCH = make(chan *DumpPacket, 1)
 	go func() {
 		latestMap := make(map[interface{}]interface{})
 		kv := new(kvPair)
@@ -27,6 +40,14 @@ func NewLocklessMap() (lt *locklessMap) {
 				continue
 			case key = <-lt.reqCH:
 				lt.takeCH <- latestMap[key]
+				continue
+			case <-lt.dumpReqCH:
+				dp := new(DumpPacket)
+				for k, v := range latestMap {
+					dp.Keys = append(dp.Keys, k)
+					dp.Values = append(dp.Values, v)
+				}
+				lt.dumpPacketCH <- dp
 			}
 		}
 	}()
@@ -55,6 +76,12 @@ func (lt *locklessMap) Take(keys ...interface{}) (s interface{}) {
 func (lt *locklessMap) take(key interface{}) (s interface{}) {
 	lt.reqCH <- key
 	s = <-lt.takeCH
+	return
+}
+
+func (lt *locklessMap) Dump() (dp *DumpPacket) {
+	lt.dumpReqCH <- true
+	dp = <-lt.dumpPacketCH
 	return
 }
 
