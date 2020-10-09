@@ -22,7 +22,6 @@ func NewLocklessMap() (lt *locklessMap) {
 				continue
 			case key = <-lt.reqCH:
 				lt.takeCH <- latestMap[key]
-				//c = nil
 			}
 		}
 	}()
@@ -34,13 +33,41 @@ type kvPair struct {
 	V interface{}
 }
 
-func (lt *locklessMap) Take(key interface{}) (s interface{}) {
+func (lt *locklessMap) Take(keys ...interface{}) (s interface{}) {
+	_lt := lt
+	for _, k := range keys {
+		s = _lt.take(k)
+		switch s.(type) {
+		case *locklessMap:
+			_lt = s.(*locklessMap)
+		default:
+			return
+		}
+	}
+	return
+}
+
+func (lt *locklessMap) take(key interface{}) (s interface{}) {
 	lt.reqCH <- key
 	s = <-lt.takeCH
 	return
 }
 
-func (lt *locklessMap) Put(key interface{}, s interface{}) {
-	lt.CH <- &kvPair{K: key, V: s}
+func (lt *locklessMap) Put(keysNVal ...interface{}) {
+	_lt := lt
+	for i := 0; i < len(keysNVal)-2; i++ {
+		t := _lt.Take(keysNVal[i])
+		if t == nil {
+			t = NewLocklessMap()
+		}
+		_lt.put(keysNVal[i], t)
+		_lt = t.(*locklessMap)
+	}
+	_lt.put(keysNVal[len(keysNVal)-2], keysNVal[len(keysNVal)-1])
+	return
+}
+
+func (lt *locklessMap) put(key interface{}, value interface{}) {
+	lt.CH <- &kvPair{K: key, V: value}
 	return
 }
