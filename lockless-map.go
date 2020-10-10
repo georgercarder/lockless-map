@@ -10,7 +10,7 @@ type LocklessMap interface {
 }
 
 type LocklessMap_ struct {
-	CH           (chan *kvPair)
+	cH           (chan *kvPair)
 	reqCH        (chan interface{}) // key
 	takeCH       (chan interface{}) // value
 	dumpReqCH    (chan bool)
@@ -24,7 +24,7 @@ type DumpPacket struct {
 
 func NewLocklessMap() (lt *LocklessMap_) {
 	lt = new(LocklessMap_)
-	lt.CH = make(chan *kvPair, 1)
+	lt.cH = make(chan *kvPair, 1)
 	lt.reqCH = make(chan interface{}, 1)
 	lt.takeCH = make(chan interface{}, 1)
 	lt.dumpReqCH = make(chan bool, 1)
@@ -35,7 +35,7 @@ func NewLocklessMap() (lt *LocklessMap_) {
 		var key interface{}
 		for {
 			select {
-			case kv = <-lt.CH:
+			case kv = <-lt.cH:
 				latestMap[kv.K] = kv.V
 				continue
 			case key = <-lt.reqCH:
@@ -100,6 +100,6 @@ func (lt *LocklessMap_) Put(keysNVal ...interface{}) {
 }
 
 func (lt *LocklessMap_) put(key interface{}, value interface{}) {
-	lt.CH <- &kvPair{K: key, V: value}
+	lt.cH <- &kvPair{K: key, V: value}
 	return
 }
