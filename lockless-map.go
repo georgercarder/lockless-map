@@ -7,6 +7,7 @@ package lockless_map
 type LocklessMap interface {
 	Put(keysNVal ...interface{})
 	Take(keys ...interface{}) interface{}
+	Dump() *DumpPacket
 }
 
 type LocklessMap_ struct {
