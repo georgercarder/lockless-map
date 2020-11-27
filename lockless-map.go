@@ -1,8 +1,8 @@
 package lockless_map
 
-// TODO PUT AN ENFORCEMENT OF CHAIN OF KEYTYPES
-
-// TODO NEED RANGE OVER MAP
+import (
+	"time"
+)
 
 type LocklessMap interface {
 	Put(keysNVal ...interface{})
@@ -16,6 +16,7 @@ type LocklessMap_ struct {
 	takeCH       (chan interface{}) // value
 	dumpReqCH    (chan bool)
 	dumpPacketCH (chan *DumpPacket)
+	tCH          (chan bool)
 }
 
 type DumpPacket struct {
@@ -30,6 +31,7 @@ func NewLocklessMap() (lt *LocklessMap_) {
 	lt.takeCH = make(chan interface{}, 1)
 	lt.dumpReqCH = make(chan bool, 1)
 	lt.dumpPacketCH = make(chan *DumpPacket, 1)
+	lt.tCH = make(chan bool, 1)
 	go func() {
 		latestMap := make(map[interface{}]interface{})
 		kv := new(kvPair)
@@ -101,6 +103,9 @@ func (lt *LocklessMap_) Put(keysNVal ...interface{}) {
 }
 
 func (lt *LocklessMap_) put(key interface{}, value interface{}) {
+	for len(lt.cH) > 0 {
+		time.Sleep(time.Nanosecond)
+	}
 	lt.cH <- &kvPair{K: key, V: value}
 	return
 }
